@@ -35,18 +35,18 @@ export default function AnimatedBackground({ darkMode }) {
     function createParticles() {
       const colors = darkMode ? DARK_COLORS : LIGHT_COLORS;
       particlesRef.current = Array.from({ length: PARTICLE_COUNT }, () => ({
-        x: Math.random() * w,
-        y: Math.random() * h,
-        vx: (Math.random() - 0.5) * 0.8,
-        vy: (Math.random() - 0.5) * 0.8,
+        x: w / 2 + (Math.random() - 0.5) * w * 0.8,
+        y: h / 2 + (Math.random() - 0.5) * h * 0.8,
+        vx: (Math.random() - 0.5) * 0.4,
+        vy: (Math.random() - 0.5) * 0.4,
         baseR: isMobile ? Math.random() * 4 + 2.5 : Math.random() * 3 + 2,
         r: 0,
         opacity: isMobile ? Math.random() * 0.5 + 0.3 : Math.random() * 0.4 + 0.2,
         baseOpacity: 0,
         color: colors[Math.floor(Math.random() * colors.length)],
         pulse: Math.random() * Math.PI * 2,
-        rotDir: Math.random() < 0.5 ? 1 : -1, // random CW or CCW
-        rotSpeed: 0.0002 + Math.random() * 0.0005, // random rotation speed
+        rotDir: -1, // anti-clockwise
+        rotSpeed: 0.00015 + Math.random() * 0.00025, // slower rotation
       }));
     }
 
@@ -87,13 +87,13 @@ export default function AnimatedBackground({ darkMode }) {
         const cdy = p.y - centerY;
         const cdist = Math.sqrt(cdx * cdx + cdy * cdy);
         if (cdist > 1) {
-          const outwardDrift = 0.02;
-          // Tangential force (direction per particle)
-          p.vx += (cdy / cdist) * p.rotDir * p.rotSpeed * cdist * 0.01;
-          p.vy += (-cdx / cdist) * p.rotDir * p.rotSpeed * cdist * 0.01;
-          // Outward drift
-          p.vx += (cdx / cdist) * outwardDrift * 0.01;
-          p.vy += (cdy / cdist) * outwardDrift * 0.01;
+          const outwardDrift = 0.03;
+          // Tangential force (anti-clockwise)
+          p.vx += (cdy / cdist) * p.rotDir * p.rotSpeed * cdist * 0.008;
+          p.vy += (-cdx / cdist) * p.rotDir * p.rotSpeed * cdist * 0.008;
+          // Outward drift from center
+          p.vx += (cdx / cdist) * outwardDrift * 0.012;
+          p.vy += (cdy / cdist) * outwardDrift * 0.012;
         }
 
         const dx = p.x - mouse.x;
@@ -131,9 +131,9 @@ export default function AnimatedBackground({ darkMode }) {
 
         // Speed limit
         const speed = Math.sqrt(p.vx * p.vx + p.vy * p.vy);
-        if (speed > 3) {
-          p.vx = (p.vx / speed) * 3;
-          p.vy = (p.vy / speed) * 3;
+        if (speed > 1.8) {
+          p.vx = (p.vx / speed) * 1.8;
+          p.vy = (p.vy / speed) * 1.8;
         }
 
         p.x += p.vx;
