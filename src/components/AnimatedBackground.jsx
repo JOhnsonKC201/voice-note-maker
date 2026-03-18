@@ -32,22 +32,32 @@ export default function AnimatedBackground({ darkMode }) {
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     }
 
-    function createParticles() {
-      const colors = darkMode ? DARK_COLORS : LIGHT_COLORS;
-      particlesRef.current = Array.from({ length: PARTICLE_COUNT }, () => ({
-        x: w / 2 + (Math.random() - 0.5) * w * 0.8,
-        y: h / 2 + (Math.random() - 0.5) * h * 0.8,
-        vx: (Math.random() - 0.5) * 0.6,
-        vy: (Math.random() - 0.5) * 0.6,
-        baseR: isMobile ? Math.random() * 4 + 2.5 : Math.random() * 3 + 2,
+    function createParticle(colors, randomZ) {
+      const z = randomZ ? Math.random() : 0; // 0 = center/far, 1 = edge/close
+      const angle = Math.random() * Math.PI * 2;
+      const spread = z * Math.max(w, h) * 0.6;
+      return {
+        x: w / 2 + Math.cos(angle) * spread,
+        y: h / 2 + Math.sin(angle) * spread,
+        vx: 0,
+        vy: 0,
+        z, // depth: 0 = far (center), 1 = close (edges)
+        maxR: isMobile ? Math.random() * 4 + 2.5 : Math.random() * 3 + 2,
+        baseR: 0,
         r: 0,
-        opacity: isMobile ? Math.random() * 0.5 + 0.4 : Math.random() * 0.5 + 0.3,
+        maxOpacity: isMobile ? Math.random() * 0.5 + 0.4 : Math.random() * 0.5 + 0.3,
+        opacity: 0,
         baseOpacity: 0,
         color: colors[Math.floor(Math.random() * colors.length)],
         pulse: Math.random() * Math.PI * 2,
-        rotDir: -1, // anti-clockwise
-        rotSpeed: 0.0003 + Math.random() * 0.0004, // moderate rotation
-      }));
+        rotDir: -1,
+        rotSpeed: 0.0003 + Math.random() * 0.0004,
+      };
+    }
+
+    function createParticles() {
+      const colors = darkMode ? DARK_COLORS : LIGHT_COLORS;
+      particlesRef.current = Array.from({ length: PARTICLE_COUNT }, () => createParticle(colors, true));
     }
 
     function draw() {
@@ -77,23 +87,30 @@ export default function AnimatedBackground({ darkMode }) {
       for (let i = 0; i < particles.length; i++) {
         const p = particles[i];
 
+        // Advance depth — particle moves "toward" you
+        p.z += 0.002 + p.z * 0.003;
+
+        // Scale size and opacity based on depth (closer = bigger + brighter)
+        p.baseR = p.maxR * (0.2 + p.z * 0.8);
+        p.opacity = p.maxOpacity * (0.1 + p.z * 0.9);
+
         // Pulse
         p.pulse += 0.015;
         const pulseFactor = 0.3 * Math.sin(p.pulse) + 1;
         p.r = p.baseR * pulseFactor;
 
-        // Random rotation around center + gentle outward drift
+        // Anti-clockwise rotation + outward drift from center
         const cdx = p.x - centerX;
         const cdy = p.y - centerY;
         const cdist = Math.sqrt(cdx * cdx + cdy * cdy);
         if (cdist > 1) {
-          const outwardDrift = 0.03;
+          const outwardDrift = 0.04 + p.z * 0.06; // faster outward as they get closer
           // Tangential force (anti-clockwise)
           p.vx += (cdy / cdist) * p.rotDir * p.rotSpeed * cdist * 0.008;
           p.vy += (-cdx / cdist) * p.rotDir * p.rotSpeed * cdist * 0.008;
           // Outward drift from center
-          p.vx += (cdx / cdist) * outwardDrift * 0.012;
-          p.vy += (cdy / cdist) * outwardDrift * 0.012;
+          p.vx += (cdx / cdist) * outwardDrift * 0.015;
+          p.vy += (cdy / cdist) * outwardDrift * 0.015;
         }
 
         const dx = p.x - mouse.x;
@@ -102,22 +119,16 @@ export default function AnimatedBackground({ darkMode }) {
 
         if (mouse.active && dist < MOUSE_RADIUS && dist > 0) {
           if (dist < MOUSE_ATTRACT_RADIUS) {
-            // Close particles get gently attracted (orbit effect)
             const attractForce = (MOUSE_ATTRACT_RADIUS - dist) / MOUSE_ATTRACT_RADIUS * 0.008;
-            // Tangential force for orbit
             p.vx += (-dy / dist) * attractForce * 2;
             p.vy += (dx / dist) * attractForce * 2;
-            // Slight pull inward
             p.vx -= (dx / dist) * attractForce * 0.5;
             p.vy -= (dy / dist) * attractForce * 0.5;
           } else {
-            // Outer particles get pushed away
             const repelForce = (MOUSE_RADIUS - dist) / MOUSE_RADIUS * 0.04;
             p.vx += (dx / dist) * repelForce;
             p.vy += (dy / dist) * repelForce;
           }
-
-          // Particles near cursor glow brighter and bigger
           const proximity = 1 - dist / MOUSE_RADIUS;
           p.baseOpacity = p.opacity + proximity * 0.5;
           p.r = p.baseR * pulseFactor * (1 + proximity * 1.5);
@@ -139,11 +150,13 @@ export default function AnimatedBackground({ darkMode }) {
         p.x += p.vx;
         p.y += p.vy;
 
-        // Wrap edges
-        if (p.x < -20) p.x = w + 20;
-        if (p.x > w + 20) p.x = -20;
-        if (p.y < -20) p.y = h + 20;
-        if (p.y > h + 20) p.y = -20;
+        // Respawn at center when off screen or fully "arrived"
+        if (p.z >= 1 || p.x < -40 || p.x > w + 40 || p.y < -40 || p.y > h + 40) {
+          const colors = darkMode ? DARK_COLORS : LIGHT_COLORS;
+          const fresh = createParticle(colors, false);
+          Object.assign(p, fresh);
+          continue;
+        }
 
         // Draw particle with glow
         const glowSize = p.r * 3;
