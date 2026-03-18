@@ -4,7 +4,7 @@ import { Mic, Square, Pause, Play, RotateCcw, AlertCircle, Download, Trash2, Che
 import AudioWaveform from './components/AudioWaveform';
 import SearchBar from './components/SearchBar';
 
-const API_URL = 'http://localhost:3003/api';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3003/api';
 // Glass card style
 const glass = `backdrop-blur-xl bg-white/80 dark:bg-white/[0.08] border border-white/60 dark:border-white/[0.08]
                rounded-2xl shadow-[0_8px_40px_rgba(99,102,241,0.08),0_2px_8px_rgba(0,0,0,0.04)]
