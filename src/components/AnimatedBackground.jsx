@@ -37,16 +37,16 @@ export default function AnimatedBackground({ darkMode }) {
       particlesRef.current = Array.from({ length: PARTICLE_COUNT }, () => ({
         x: w / 2 + (Math.random() - 0.5) * w * 0.8,
         y: h / 2 + (Math.random() - 0.5) * h * 0.8,
-        vx: (Math.random() - 0.5) * 0.4,
-        vy: (Math.random() - 0.5) * 0.4,
+        vx: (Math.random() - 0.5) * 0.6,
+        vy: (Math.random() - 0.5) * 0.6,
         baseR: isMobile ? Math.random() * 4 + 2.5 : Math.random() * 3 + 2,
         r: 0,
-        opacity: isMobile ? Math.random() * 0.5 + 0.3 : Math.random() * 0.4 + 0.2,
+        opacity: isMobile ? Math.random() * 0.5 + 0.4 : Math.random() * 0.5 + 0.3,
         baseOpacity: 0,
         color: colors[Math.floor(Math.random() * colors.length)],
         pulse: Math.random() * Math.PI * 2,
         rotDir: -1, // anti-clockwise
-        rotSpeed: 0.00015 + Math.random() * 0.00025, // slower rotation
+        rotSpeed: 0.0003 + Math.random() * 0.0004, // moderate rotation
       }));
     }
 
@@ -131,9 +131,9 @@ export default function AnimatedBackground({ darkMode }) {
 
         // Speed limit
         const speed = Math.sqrt(p.vx * p.vx + p.vy * p.vy);
-        if (speed > 1.8) {
-          p.vx = (p.vx / speed) * 1.8;
-          p.vy = (p.vy / speed) * 1.8;
+        if (speed > 2.5) {
+          p.vx = (p.vx / speed) * 2.5;
+          p.vy = (p.vy / speed) * 2.5;
         }
 
         p.x += p.vx;
@@ -170,7 +170,7 @@ export default function AnimatedBackground({ darkMode }) {
           const cdist = Math.sqrt(cdx * cdx + cdy * cdy);
 
           if (cdist < CONNECTION_DIST) {
-            const alpha = (1 - cdist / CONNECTION_DIST) * 0.25;
+            const alpha = (1 - cdist / CONNECTION_DIST) * 0.35;
 
             // Lines near cursor are brighter and thicker
             let lineWidth = 0.8;
