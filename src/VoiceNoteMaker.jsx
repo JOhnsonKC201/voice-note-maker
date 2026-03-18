@@ -160,6 +160,7 @@ export default function VoiceNoteMaker({ darkMode, user, synced, notes: savedNot
 
   const timerRef = useRef(null);
   const recognitionRef = useRef(null);
+  const recordingStateRef = useRef({ isRecording: false, isPaused: false });
 
   const formatTime = (s) => {
     const m = Math.floor(s / 60);
@@ -226,23 +227,37 @@ export default function VoiceNoteMaker({ darkMode, user, synced, notes: savedNot
       };
 
       recognition.onerror = (event) => {
+        // "aborted" on mobile is usually a temporary interruption, not a real error
+        if (event.error === 'aborted') return;
+        if (event.error === 'no-speech') return; // silence is not an error
         setError(`Mic error: ${event.error}. Make sure your microphone is connected.`);
+      };
+
+      // On mobile, speech recognition can stop unexpectedly. Auto-restart it.
+      recognition.onend = () => {
+        const state = recordingStateRef.current;
+        if (state.isRecording && !state.isPaused) {
+          try { recognition.start(); } catch {}
+        }
       };
 
       recognition.start();
       recognitionRef.current = recognition;
       setIsRecording(true);
+      recordingStateRef.current = { isRecording: true, isPaused: false };
     } catch (err) {
       setError(`Couldn't access microphone: ${err.message}`);
     }
   }, []);
 
   const pauseRecording = useCallback(() => {
+    recordingStateRef.current.isPaused = true;
     recognitionRef.current?.stop();
     setIsPaused(true);
   }, []);
 
   const resumeRecording = useCallback(() => {
+    recordingStateRef.current.isPaused = false;
     recognitionRef.current?.start();
     setIsPaused(false);
   }, []);
@@ -256,6 +271,7 @@ export default function VoiceNoteMaker({ darkMode, user, synced, notes: savedNot
   }, []);
 
   const stopRecording = useCallback(() => {
+    recordingStateRef.current = { isRecording: false, isPaused: false };
     recognitionRef.current?.stop();
     setIsRecording(false);
     setIsPaused(false);
