@@ -33,21 +33,23 @@ export default function AnimatedBackground({ darkMode }) {
     }
 
     function createParticle(colors, randomZ) {
-      const z = randomZ ? Math.random() : 0; // 0 = center/far, 1 = edge/close
+      const z = randomZ ? 0.15 + Math.random() * 0.85 : 0.15 + Math.random() * 0.15;
       const angle = Math.random() * Math.PI * 2;
-      const spread = z * Math.max(w, h) * 0.6;
+      const spread = z * Math.max(w, h) * 0.55;
+      const maxR = isMobile ? Math.random() * 4 + 2.5 : Math.random() * 3 + 2;
+      const maxOpacity = isMobile ? Math.random() * 0.4 + 0.6 : Math.random() * 0.4 + 0.5;
       return {
         x: w / 2 + Math.cos(angle) * spread,
         y: h / 2 + Math.sin(angle) * spread,
-        vx: 0,
-        vy: 0,
-        z, // depth: 0 = far (center), 1 = close (edges)
-        maxR: isMobile ? Math.random() * 4 + 2.5 : Math.random() * 3 + 2,
-        baseR: 0,
-        r: 0,
-        maxOpacity: isMobile ? Math.random() * 0.4 + 0.6 : Math.random() * 0.4 + 0.5,
-        opacity: 0,
-        baseOpacity: 0,
+        vx: (Math.cos(angle) * z * 0.3),
+        vy: (Math.sin(angle) * z * 0.3),
+        z,
+        maxR,
+        baseR: maxR * (0.3 + z * 0.7),
+        r: maxR * (0.3 + z * 0.7),
+        maxOpacity,
+        opacity: maxOpacity * (0.2 + z * 0.8),
+        baseOpacity: maxOpacity * (0.2 + z * 0.8),
         color: colors[Math.floor(Math.random() * colors.length)],
         pulse: Math.random() * Math.PI * 2,
         rotDir: -1,
