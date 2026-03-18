@@ -16,9 +16,9 @@ export default function AnimatedBackground({ darkMode }) {
     let w, h;
 
     const isMobile = window.innerWidth < 768;
-    const STAR_COUNT = isMobile ? 200 : 350;
-    const SPEED = 0.15;
-    const MAX_DEPTH = 1500;
+    const STAR_COUNT = isMobile ? 150 : 250;
+    const SPEED = 0.08;
+    const MAX_DEPTH = 1000;
     const MOUSE_RADIUS = isMobile ? 200 : 250;
 
     function resize() {
@@ -39,7 +39,7 @@ export default function AnimatedBackground({ darkMode }) {
         y: (Math.random() - 0.5) * h * 2,
         z: Math.random() * MAX_DEPTH,
         color: colors[Math.floor(Math.random() * colors.length)],
-        baseSize: 2 + Math.random() * 3,
+        baseSize: 2.5 + Math.random() * 3.5,
       };
     }
 
@@ -79,7 +79,7 @@ export default function AnimatedBackground({ darkMode }) {
         s.z -= SPEED + (MAX_DEPTH - s.z) * 0.0005;
 
         // Slow anti-clockwise rotation around center
-        const rotAngle = -0.0006; // anti-clockwise, very gentle
+        const rotAngle = -0.0003; // anti-clockwise, barely perceptible
         const cosA = Math.cos(rotAngle);
         const sinA = Math.sin(rotAngle);
         const newX = s.x * cosA - s.y * sinA;
@@ -113,7 +113,7 @@ export default function AnimatedBackground({ darkMode }) {
         // Closer = bigger, brighter
         const depth = 1 - s.z / MAX_DEPTH; // 0 = far, 1 = close
         const size = s.baseSize * scale * 0.8;
-        const alpha = Math.min(depth * 1.8 + 0.15, 1) * (darkMode ? 1 : 0.9);
+        const alpha = Math.min(depth * 2 + 0.3, 1) * (darkMode ? 1 : 0.95);
 
         // Draw motion streak
         const streakAlpha = alpha * 0.6;
@@ -145,11 +145,11 @@ export default function AnimatedBackground({ darkMode }) {
         }
 
         // Connection lines between nearby stars (only close ones for performance)
-        if (depth > 0.2) {
+        if (depth > 0.1) {
           for (let j = i + 1; j < stars.length; j++) {
             const s2 = stars[j];
             const depth2 = 1 - s2.z / MAX_DEPTH;
-            if (depth2 < 0.2) continue;
+            if (depth2 < 0.1) continue;
 
             const scale2 = 400 / s2.z;
             const sx2 = s2.x * scale2 + cx;
@@ -158,10 +158,10 @@ export default function AnimatedBackground({ darkMode }) {
             const dx = sx - sx2;
             const dy = sy - sy2;
             const dist = Math.sqrt(dx * dx + dy * dy);
-            const connDist = isMobile ? 130 : 180;
+            const connDist = isMobile ? 160 : 220;
 
             if (dist < connDist) {
-              const lineAlpha = (1 - dist / connDist) * 0.4 * Math.min(depth, depth2);
+              const lineAlpha = (1 - dist / connDist) * 0.55 * Math.min(depth + 0.3, depth2 + 0.3);
 
               // Brighten near cursor
               let lineWidth = 0.6;
