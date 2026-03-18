@@ -115,7 +115,7 @@ export default function AnimatedBackground({ darkMode }) {
         // Closer = bigger, brighter
         const depth = 1 - s.z / MAX_DEPTH; // 0 = far, 1 = close
         const size = s.baseSize * scale * 0.8;
-        const alpha = Math.min(depth * 1.4, 1) * (darkMode ? 1 : 0.85);
+        const alpha = Math.min(depth * 1.8 + 0.15, 1) * (darkMode ? 1 : 0.9);
 
         // Draw motion streak
         const streakAlpha = alpha * 0.6;
@@ -134,8 +134,8 @@ export default function AnimatedBackground({ darkMode }) {
         ctx.fill();
 
         // Glow for close stars
-        if (depth > 0.4) {
-          const glowAlpha = (depth - 0.4) * 0.6 * (darkMode ? 1 : 0.7);
+        if (depth > 0.2) {
+          const glowAlpha = (depth - 0.2) * 0.8 * (darkMode ? 1 : 0.8);
           const glowR = size * 4;
           const glow = ctx.createRadialGradient(sx, sy, 0, sx, sy, glowR);
           glow.addColorStop(0, `rgba(${s.color},${glowAlpha})`);
