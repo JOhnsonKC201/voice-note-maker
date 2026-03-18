@@ -45,7 +45,7 @@ export default function AnimatedBackground({ darkMode }) {
         maxR: isMobile ? Math.random() * 4 + 2.5 : Math.random() * 3 + 2,
         baseR: 0,
         r: 0,
-        maxOpacity: isMobile ? Math.random() * 0.5 + 0.4 : Math.random() * 0.5 + 0.3,
+        maxOpacity: isMobile ? Math.random() * 0.4 + 0.6 : Math.random() * 0.4 + 0.5,
         opacity: 0,
         baseOpacity: 0,
         color: colors[Math.floor(Math.random() * colors.length)],
@@ -91,8 +91,8 @@ export default function AnimatedBackground({ darkMode }) {
         p.z += 0.002 + p.z * 0.003;
 
         // Scale size and opacity based on depth (closer = bigger + brighter)
-        p.baseR = p.maxR * (0.2 + p.z * 0.8);
-        p.opacity = p.maxOpacity * (0.1 + p.z * 0.9);
+        p.baseR = p.maxR * (0.3 + p.z * 0.7);
+        p.opacity = p.maxOpacity * (0.2 + p.z * 0.8);
 
         // Pulse
         p.pulse += 0.015;
@@ -183,7 +183,7 @@ export default function AnimatedBackground({ darkMode }) {
           const cdist = Math.sqrt(cdx * cdx + cdy * cdy);
 
           if (cdist < CONNECTION_DIST) {
-            const alpha = (1 - cdist / CONNECTION_DIST) * 0.35;
+            const alpha = (1 - cdist / CONNECTION_DIST) * 0.45;
 
             // Lines near cursor are brighter and thicker
             let lineWidth = 0.8;
