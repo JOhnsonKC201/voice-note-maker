@@ -5,8 +5,12 @@ import AudioWaveform from './components/AudioWaveform';
 import SearchBar from './components/SearchBar';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3003/api';
-// Glass card style
-const glass = `backdrop-blur-xl bg-white/80 dark:bg-white/[0.08] border border-white/60 dark:border-white/[0.08]
+// Glass card style — more transparent on mobile so background shows through
+const glass = `backdrop-blur-xl
+               bg-white/80 md:bg-white/80 max-md:bg-white/60
+               dark:bg-white/[0.08] max-md:dark:bg-white/[0.05]
+               border border-white/60 dark:border-white/[0.08]
+               max-md:border-white/30 max-md:dark:border-white/[0.12]
                rounded-2xl shadow-[0_8px_40px_rgba(99,102,241,0.08),0_2px_8px_rgba(0,0,0,0.04)]
                dark:shadow-[0_8px_40px_rgba(0,0,0,0.4)]`;
 
@@ -330,17 +334,17 @@ export default function VoiceNoteMaker({ darkMode, user, synced, notes: savedNot
 
   return (
     <ErrorBoundary>
-      <div className="max-w-4xl mx-auto p-4 sm:p-8 pt-16">
+      <div className="max-w-4xl mx-auto p-3 sm:p-8 pt-12 sm:pt-16">
 
         {/* Header */}
         <motion.div
-          className="text-center mb-10"
+          className="text-center mb-6 sm:mb-10"
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
         >
           <motion.h1
-            className="text-4xl sm:text-5xl font-extrabold mb-3 bg-gradient-to-r from-indigo-600 via-purple-600 to-blue-600 dark:from-indigo-400 dark:via-purple-400 dark:to-blue-400 bg-clip-text text-transparent"
+            className="text-3xl sm:text-5xl font-extrabold mb-2 sm:mb-3 bg-gradient-to-r from-indigo-600 via-purple-600 to-blue-600 dark:from-indigo-400 dark:via-purple-400 dark:to-blue-400 bg-clip-text text-transparent"
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.6, delay: 0.1 }}
@@ -348,7 +352,7 @@ export default function VoiceNoteMaker({ darkMode, user, synced, notes: savedNot
             Lecture Note Maker
           </motion.h1>
           <motion.p
-            className="text-gray-700 dark:text-gray-300 text-lg"
+            className="text-gray-700 dark:text-gray-300 text-sm sm:text-lg"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.3 }}
@@ -387,17 +391,18 @@ export default function VoiceNoteMaker({ darkMode, user, synced, notes: savedNot
         </AnimatePresence>
 
         {/* Record */}
-        <motion.div className={`${glass} p-6 sm:p-8 mb-6 relative overflow-hidden`} {...fadeInUp}>
+        <motion.div className={`${glass} p-4 sm:p-8 mb-4 sm:mb-6 relative overflow-hidden`} {...fadeInUp}>
           <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-t-2xl" />
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-red-500 to-rose-600 flex items-center justify-center">
-              <Mic size={16} className="text-white" />
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-4 sm:mb-6 flex items-center gap-2 sm:gap-3">
+            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-gradient-to-br from-red-500 to-rose-600 flex items-center justify-center">
+              <Mic size={14} className="text-white sm:hidden" />
+              <Mic size={16} className="text-white hidden sm:block" />
             </div>
             Record Your Lecture
           </h2>
           <div className="text-center">
             <motion.div
-              className={`text-5xl font-mono font-bold mb-6 py-3 px-6 rounded-xl inline-block ${
+              className={`text-4xl sm:text-5xl font-mono font-bold mb-4 sm:mb-6 py-2 sm:py-3 px-5 sm:px-6 rounded-xl inline-block ${
                 isRecording
                   ? 'text-red-500 dark:text-red-400 bg-red-50/50 dark:bg-red-950/20'
                   : 'text-indigo-600 dark:text-indigo-400 bg-indigo-50/50 dark:bg-indigo-950/20'
@@ -431,7 +436,7 @@ export default function VoiceNoteMaker({ darkMode, user, synced, notes: savedNot
                 ) : (
                   <motion.div
                     key="controls"
-                    className="flex items-center gap-3"
+                    className="flex flex-wrap items-center justify-center gap-2 sm:gap-3"
                     initial={{ opacity: 0, scale: 0.8 }}
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.8 }}
@@ -439,8 +444,8 @@ export default function VoiceNoteMaker({ darkMode, user, synced, notes: savedNot
                     {/* Pause / Resume */}
                     <motion.button
                       onClick={isPaused ? resumeRecording : pauseRecording}
-                      className={`relative font-bold py-3 px-5 rounded-2xl flex items-center justify-center gap-2
-                                 text-white shadow-lg transition-shadow ${
+                      className={`relative font-bold py-2.5 px-4 sm:py-3 sm:px-5 rounded-2xl flex items-center justify-center gap-1.5 sm:gap-2
+                                 text-sm sm:text-base text-white shadow-lg transition-shadow ${
                                    isPaused
                                      ? 'bg-gradient-to-r from-green-500 to-emerald-600 hover:shadow-[0_0_20px_rgba(34,197,94,0.3)]'
                                      : 'bg-gradient-to-r from-amber-500 to-orange-600 hover:shadow-[0_0_20px_rgba(245,158,11,0.3)]'
@@ -456,7 +461,7 @@ export default function VoiceNoteMaker({ darkMode, user, synced, notes: savedNot
                       onClick={stopRecording}
                       className="relative bg-gradient-to-r from-red-500 to-rose-600 hover:from-red-600 hover:to-rose-700
                                  hover:shadow-[0_0_30px_rgba(239,68,68,0.3)]
-                                 text-white font-bold py-4 px-10 rounded-2xl flex items-center justify-center gap-3
+                                 text-white font-bold py-3 px-7 sm:py-4 sm:px-10 rounded-2xl flex items-center justify-center gap-2 sm:gap-3
                                  shadow-lg transition-shadow"
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
@@ -469,8 +474,8 @@ export default function VoiceNoteMaker({ darkMode, user, synced, notes: savedNot
                       onClick={restartRecording}
                       className="relative bg-gradient-to-r from-indigo-500 to-purple-600
                                  hover:shadow-[0_0_20px_rgba(99,102,241,0.3)]
-                                 text-white font-bold py-3 px-5 rounded-2xl flex items-center justify-center gap-2
-                                 shadow-lg transition-shadow"
+                                 text-white font-bold py-2.5 px-4 sm:py-3 sm:px-5 rounded-2xl flex items-center justify-center gap-1.5 sm:gap-2
+                                 text-sm sm:text-base shadow-lg transition-shadow"
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
                     >
@@ -601,11 +606,11 @@ export default function VoiceNoteMaker({ darkMode, user, synced, notes: savedNot
 
         {/* Saved Notes */}
         {savedNotes.length > 0 && (
-          <motion.div className={`${glass} p-6 sm:p-8 mb-6 relative overflow-hidden`} {...fadeInUp}>
+          <motion.div className={`${glass} p-4 sm:p-8 mb-4 sm:mb-6 relative overflow-hidden`} {...fadeInUp}>
             <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 rounded-t-2xl" />
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-1 flex items-center gap-3">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center">
-                <FileText size={16} className="text-white" />
+            <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-1 flex items-center gap-2 sm:gap-3">
+              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center">
+                <FileText size={14} className="text-white" />
               </div>
               Your Saved Notes
               <span className="text-sm font-normal text-gray-500 dark:text-gray-400 ml-1 bg-gray-100 dark:bg-white/10 px-2 py-0.5 rounded-full">{savedNotes.length}</span>
@@ -712,7 +717,7 @@ export default function VoiceNoteMaker({ darkMode, user, synced, notes: savedNot
         )}
 
         {/* How it works */}
-        <motion.div className={`${glass} p-6 mb-8 relative overflow-hidden`} {...fadeInUp}>
+        <motion.div className={`${glass} p-4 sm:p-6 mb-6 sm:mb-8 relative overflow-hidden`} {...fadeInUp}>
           <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-400 via-orange-500 to-rose-500 rounded-t-2xl" />
           <h3 className="font-bold text-lg text-gray-900 dark:text-white mb-4 flex items-center gap-3">
             <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center">

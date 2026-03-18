@@ -16,10 +16,10 @@ export default function AnimatedBackground({ darkMode }) {
     let w, h;
 
     const isMobile = window.innerWidth < 768;
-    const PARTICLE_COUNT = isMobile ? 50 : 100;
-    const CONNECTION_DIST = isMobile ? 120 : 180;
-    const MOUSE_RADIUS = isMobile ? 180 : 250;
-    const MOUSE_ATTRACT_RADIUS = 120;
+    const PARTICLE_COUNT = isMobile ? 70 : 100;
+    const CONNECTION_DIST = isMobile ? 140 : 180;
+    const MOUSE_RADIUS = isMobile ? 200 : 250;
+    const MOUSE_ATTRACT_RADIUS = isMobile ? 140 : 120;
 
     function resize() {
       const dpr = window.devicePixelRatio || 1;
@@ -39,9 +39,9 @@ export default function AnimatedBackground({ darkMode }) {
         y: Math.random() * h,
         vx: (Math.random() - 0.5) * 0.8,
         vy: (Math.random() - 0.5) * 0.8,
-        baseR: Math.random() * 3 + 2,
+        baseR: isMobile ? Math.random() * 4 + 2.5 : Math.random() * 3 + 2,
         r: 0,
-        opacity: Math.random() * 0.4 + 0.2,
+        opacity: isMobile ? Math.random() * 0.5 + 0.3 : Math.random() * 0.4 + 0.2,
         baseOpacity: 0,
         color: colors[Math.floor(Math.random() * colors.length)],
         pulse: Math.random() * Math.PI * 2,
@@ -210,10 +210,10 @@ export default function AnimatedBackground({ darkMode }) {
       // Shooting stars
       const stars = shootingStarsRef.current;
 
-      // Spawn new shooting star randomly (~every 3 seconds on average)
-      if (Math.random() < 0.006) {
+      // Spawn shooting stars more often on mobile
+      if (Math.random() < (isMobile ? 0.009 : 0.006)) {
         const colors = darkMode ? DARK_COLORS : LIGHT_COLORS;
-        const angle = Math.PI * 0.15 + Math.random() * Math.PI * 0.2; // angled downward
+        const angle = Math.PI * 0.15 + Math.random() * Math.PI * 0.2;
         const speed = 6 + Math.random() * 8;
         stars.push({
           x: Math.random() * w * 1.2 - w * 0.1,
@@ -222,8 +222,8 @@ export default function AnimatedBackground({ darkMode }) {
           vy: Math.sin(angle) * speed,
           life: 1,
           decay: 0.008 + Math.random() * 0.012,
-          length: 40 + Math.random() * 80,
-          width: 1 + Math.random() * 2,
+          length: isMobile ? 60 + Math.random() * 100 : 40 + Math.random() * 80,
+          width: isMobile ? 1.5 + Math.random() * 2.5 : 1 + Math.random() * 2,
           color: colors[Math.floor(Math.random() * colors.length)],
         });
       }
