@@ -17,7 +17,7 @@ export default function AnimatedBackground({ darkMode }) {
 
     const isMobile = window.innerWidth < 768;
     const STAR_COUNT = isMobile ? 200 : 350;
-    const SPEED = 0.3;
+    const SPEED = 0.15;
     const MAX_DEPTH = 1500;
     const MOUSE_RADIUS = isMobile ? 200 : 250;
 
@@ -81,7 +81,7 @@ export default function AnimatedBackground({ darkMode }) {
         s.z -= SPEED + (MAX_DEPTH - s.z) * 0.0005;
 
         // Slow anti-clockwise rotation around center
-        const rotAngle = -0.001; // anti-clockwise, gentle
+        const rotAngle = -0.0006; // anti-clockwise, very gentle
         const cosA = Math.cos(rotAngle);
         const sinA = Math.sin(rotAngle);
         const newX = s.x * cosA - s.y * sinA;
