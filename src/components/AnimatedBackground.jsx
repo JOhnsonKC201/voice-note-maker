@@ -48,9 +48,7 @@ export default function AnimatedBackground({ darkMode }) {
     }
 
     function draw() {
-      // Slight fade instead of full clear — creates motion trail
-      ctx.fillStyle = darkMode ? 'rgba(3,7,18,0.25)' : 'rgba(245,247,255,0.25)';
-      ctx.fillRect(0, 0, w, h);
+      ctx.clearRect(0, 0, w, h);
 
       const cx = w / 2;
       const cy = h / 2;
