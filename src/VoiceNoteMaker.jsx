@@ -368,8 +368,8 @@ export default function VoiceNoteMaker({ darkMode, user, synced, notes: savedNot
             transition={{ delay: 0.5 }}
           >
             {user && synced
-              ? 'Signed in — notes synced across your devices'
-              : 'All notes saved on your device — sign in to sync'}
+              ? 'Signed in - notes synced across your devices'
+              : 'All notes saved on your device - sign in to sync'}
           </motion.p>
         </motion.div>
 
