@@ -1,0 +1,37 @@
+{
+  "name": "voice-note-maker",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "server": "node server.js",
+    "server:groq": "node server-groq.js",
+    "server:huggingface": "node server-huggingface.js",
+    "server:ollama": "node server-ollama.js",
+    "dev:full": "concurrently \"npm run server\" \"npm run dev\"",
+    "dev:ai": "concurrently \"npm run server:groq\" \"npm run dev\"",
+    "dev:hf": "concurrently \"npm run server:huggingface\" \"npm run dev\"",
+    "dev:ollama": "concurrently \"npm run server:ollama\" \"npm run dev\""
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "firebase": "^12.10.0",
+    "framer-motion": "^12.38.0",
+    "lucide-react": "^0.263.1",
+    "node-fetch": "^2.7.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.2.1",
+    "autoprefixer": "^10.4.14",
+    "concurrently": "^8.2.1",
+    "postcss": "^8.4.31",
+    "tailwindcss": "^3.3.5",
+    "vite": "^5.0.8"
+  }
+}
