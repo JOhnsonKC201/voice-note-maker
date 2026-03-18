@@ -39,7 +39,7 @@ export default function AnimatedBackground({ darkMode }) {
         y: (Math.random() - 0.5) * h * 2,
         z: Math.random() * MAX_DEPTH,
         color: colors[Math.floor(Math.random() * colors.length)],
-        baseSize: 1 + Math.random() * 2,
+        baseSize: 2 + Math.random() * 3,
       };
     }
 
@@ -115,7 +115,7 @@ export default function AnimatedBackground({ darkMode }) {
         // Closer = bigger, brighter
         const depth = 1 - s.z / MAX_DEPTH; // 0 = far, 1 = close
         const size = s.baseSize * scale * 0.8;
-        const alpha = Math.min(depth * 1.2, 1) * (darkMode ? 0.9 : 0.7);
+        const alpha = Math.min(depth * 1.4, 1) * (darkMode ? 1 : 0.85);
 
         // Draw motion streak
         const streakAlpha = alpha * 0.6;
@@ -134,8 +134,8 @@ export default function AnimatedBackground({ darkMode }) {
         ctx.fill();
 
         // Glow for close stars
-        if (depth > 0.6) {
-          const glowAlpha = (depth - 0.6) * 0.5 * (darkMode ? 1 : 0.6);
+        if (depth > 0.4) {
+          const glowAlpha = (depth - 0.4) * 0.6 * (darkMode ? 1 : 0.7);
           const glowR = size * 4;
           const glow = ctx.createRadialGradient(sx, sy, 0, sx, sy, glowR);
           glow.addColorStop(0, `rgba(${s.color},${glowAlpha})`);
@@ -163,7 +163,7 @@ export default function AnimatedBackground({ darkMode }) {
             const connDist = isMobile ? 130 : 180;
 
             if (dist < connDist) {
-              const lineAlpha = (1 - dist / connDist) * 0.25 * Math.min(depth, depth2);
+              const lineAlpha = (1 - dist / connDist) * 0.4 * Math.min(depth, depth2);
 
               // Brighten near cursor
               let lineWidth = 0.6;
