@@ -17,7 +17,7 @@ export default function AnimatedBackground({ darkMode }) {
 
     const isMobile = window.innerWidth < 768;
     const STAR_COUNT = isMobile ? 200 : 350;
-    const SPEED = 1.2;
+    const SPEED = 0.5;
     const MAX_DEPTH = 1500;
     const MOUSE_RADIUS = isMobile ? 200 : 250;
 
@@ -78,10 +78,10 @@ export default function AnimatedBackground({ darkMode }) {
         const s = stars[i];
 
         // Move star toward viewer (slowly)
-        s.z -= SPEED + (MAX_DEPTH - s.z) * 0.001;
+        s.z -= SPEED + (MAX_DEPTH - s.z) * 0.0005;
 
         // Slow anti-clockwise rotation around center
-        const rotAngle = -0.003; // anti-clockwise
+        const rotAngle = -0.0015; // anti-clockwise, gentle
         const cosA = Math.cos(rotAngle);
         const sinA = Math.sin(rotAngle);
         const newX = s.x * cosA - s.y * sinA;
@@ -105,7 +105,7 @@ export default function AnimatedBackground({ darkMode }) {
         const sy = s.y * scale + cy;
 
         // Previous position for streak
-        const prevScale = 400 / (s.z + SPEED + (MAX_DEPTH - s.z) * 0.001);
+        const prevScale = 400 / (s.z + SPEED + (MAX_DEPTH - s.z) * 0.0005);
         const prevSx = s.x * prevScale + cx;
         const prevSy = s.y * prevScale + cy;
 
@@ -147,11 +147,11 @@ export default function AnimatedBackground({ darkMode }) {
         }
 
         // Connection lines between nearby stars (only close ones for performance)
-        if (depth > 0.4) {
+        if (depth > 0.2) {
           for (let j = i + 1; j < stars.length; j++) {
             const s2 = stars[j];
             const depth2 = 1 - s2.z / MAX_DEPTH;
-            if (depth2 < 0.4) continue;
+            if (depth2 < 0.2) continue;
 
             const scale2 = 400 / s2.z;
             const sx2 = s2.x * scale2 + cx;
@@ -160,7 +160,7 @@ export default function AnimatedBackground({ darkMode }) {
             const dx = sx - sx2;
             const dy = sy - sy2;
             const dist = Math.sqrt(dx * dx + dy * dy);
-            const connDist = isMobile ? 100 : 140;
+            const connDist = isMobile ? 130 : 180;
 
             if (dist < connDist) {
               const lineAlpha = (1 - dist / connDist) * 0.25 * Math.min(depth, depth2);
