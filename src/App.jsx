@@ -18,12 +18,13 @@ export default function App() {
     localStorage.setItem('theme', darkMode ? 'dark' : 'light');
   }, [darkMode]);
 
+  const [hideBackground, setHideBackground] = useState(false);
   const { user, loading, authError, login, logout } = useAuth();
   const { notes, addNote, removeNote, synced } = useNotes(user);
 
   return (
     <div className="relative min-h-screen bg-gray-50 dark:bg-gray-950 transition-colors duration-500">
-      <AnimatedBackground darkMode={darkMode} />
+      {!hideBackground && <AnimatedBackground darkMode={darkMode} />}
       <div className="relative z-10">
         <UserMenu
           user={user}
@@ -41,6 +42,7 @@ export default function App() {
           notes={notes}
           addNote={addNote}
           removeNote={removeNote}
+          onNoteGenerated={setHideBackground}
         />
       </div>
     </div>

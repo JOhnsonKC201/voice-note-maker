@@ -25,9 +25,9 @@ const fadeInUp = {
 function renderMarkdown(text) {
   if (!text) return '';
   return text
-    .replace(/^### (.+)$/gm, '<h3 class="text-base font-bold text-gray-800 dark:text-gray-200 mt-4 mb-1">$1</h3>')
-    .replace(/^## (.+)$/gm, '<h2 class="text-lg font-bold text-indigo-700 dark:text-indigo-400 mt-6 mb-2 pb-1 border-b border-indigo-100 dark:border-indigo-900">$1</h2>')
-    .replace(/^# (.+)$/gm, '<h1 class="text-xl font-bold text-gray-900 dark:text-white mb-3">$1</h1>')
+    .replace(/^### (.+)$/gm, '<h3 class="text-lg font-bold text-gray-800 dark:text-gray-200 mt-4 mb-1">$1</h3>')
+    .replace(/^## (.+)$/gm, '<h2 class="text-xl font-bold text-indigo-700 dark:text-indigo-400 mt-6 mb-2 pb-1 border-b border-indigo-100 dark:border-indigo-900">$1</h2>')
+    .replace(/^# (.+)$/gm, '<h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-3">$1</h1>')
     .replace(/^- \[ \] (.+)$/gm, '<div class="flex items-start gap-2 ml-2 my-1"><input type="checkbox" class="mt-1 accent-indigo-600" /><span class="text-gray-700 dark:text-gray-300">$1</span></div>')
     .replace(/^- \[x\] (.+)$/gm, '<div class="flex items-start gap-2 ml-2 my-1"><input type="checkbox" checked class="mt-1 accent-indigo-600" /><span class="text-gray-500 line-through">$1</span></div>')
     .replace(/^- (.+)$/gm, '<div class="flex items-start gap-2 ml-2 my-1"><span class="text-indigo-400 mt-0.5">&#8226;</span><span class="text-gray-700 dark:text-gray-300">$1</span></div>')
@@ -149,7 +149,7 @@ class ErrorBoundary extends React.Component {
   }
 }
 
-export default function VoiceNoteMaker({ darkMode, user, synced, notes: savedNotes, addNote, removeNote }) {
+export default function VoiceNoteMaker({ darkMode, user, synced, notes: savedNotes, addNote, removeNote, onNoteGenerated }) {
   const [isRecording, setIsRecording] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [transcript, setTranscript] = useState('');
@@ -200,6 +200,7 @@ export default function VoiceNoteMaker({ darkMode, user, synced, notes: savedNot
       setTranscript('');
       setNote(null);
       setShowSparkles(false);
+      onNoteGenerated?.(false);
 
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       setAudioStream(stream);
@@ -302,6 +303,7 @@ export default function VoiceNoteMaker({ darkMode, user, synced, notes: savedNot
       const data = await res.json();
       if (data.success) {
         setNote(data.enrichedNote);
+        onNoteGenerated?.(true);
         setShowSparkles(true);
         setTimeout(() => setShowSparkles(false), 1500);
         addNote({
@@ -556,44 +558,45 @@ export default function VoiceNoteMaker({ darkMode, user, synced, notes: savedNot
         <AnimatePresence>
           {note && (
             <motion.div
-              className={`${glass} p-6 sm:p-8 mb-6 relative overflow-hidden`}
+              className="backdrop-blur-md bg-white/40 dark:bg-white/[0.04] border border-white/30 dark:border-white/[0.06]
+                         rounded-2xl shadow-sm p-5 sm:p-6 mb-6 relative overflow-hidden"
               initial={{ opacity: 0, y: 30, filter: 'blur(10px)' }}
               animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
               transition={{ duration: 0.6, ease: 'easeOut' }}
             >
               {showSparkles && <Sparkles />}
 
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Your Lecture Notes</h2>
-                <div className="flex gap-2">
+              <div className="flex justify-between items-center mb-3">
+                <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-200">Your Lecture Notes</h2>
+                <div className="flex gap-1.5">
                   <motion.button
                     onClick={() => exportPdf(renderMarkdown(note))}
-                    className="bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 font-semibold py-2 px-3 rounded-lg flex items-center gap-1.5 text-sm"
+                    className="bg-indigo-500/10 dark:bg-indigo-400/10 text-indigo-600 dark:text-indigo-300 font-medium py-1.5 px-2.5 rounded-lg flex items-center gap-1 text-xs"
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     title="Export as PDF"
                   >
-                    <FileText size={16} /> PDF
+                    <FileText size={14} /> PDF
                   </motion.button>
                   <motion.button
                     onClick={() => downloadNote(note)}
-                    className="bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 font-semibold py-2 px-3 rounded-lg flex items-center gap-1.5 text-sm"
+                    className="bg-green-500/10 dark:bg-green-400/10 text-green-600 dark:text-green-300 font-medium py-1.5 px-2.5 rounded-lg flex items-center gap-1 text-xs"
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                   >
-                    <Download size={16} /> TXT
+                    <Download size={14} /> TXT
                   </motion.button>
                 </div>
               </div>
               <motion.div
-                className="prose prose-sm max-w-none bg-white/50 dark:bg-white/5 p-6 rounded-xl border border-gray-100 dark:border-white/5 leading-relaxed text-gray-700 dark:text-gray-200"
+                className="prose max-w-none bg-white/30 dark:bg-white/[0.03] p-5 sm:p-6 rounded-xl border border-white/20 dark:border-white/[0.04] leading-relaxed text-gray-700 dark:text-gray-200 text-base"
                 dangerouslySetInnerHTML={{ __html: renderMarkdown(note) }}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.2 }}
               />
               <motion.p
-                className="text-xs text-green-600 dark:text-green-400 mt-3"
+                className="text-xs text-green-600/70 dark:text-green-400/70 mt-2"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.6 }}

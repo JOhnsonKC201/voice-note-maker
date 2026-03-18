@@ -39,7 +39,7 @@ export default function AnimatedBackground({ darkMode }) {
         y: (Math.random() - 0.5) * h * 2,
         z: Math.random() * MAX_DEPTH,
         color: colors[Math.floor(Math.random() * colors.length)],
-        baseSize: 2.5 + Math.random() * 3.5,
+        baseSize: 9 + Math.random() * 7,
       };
     }
 
@@ -79,7 +79,7 @@ export default function AnimatedBackground({ darkMode }) {
         s.z -= SPEED + (MAX_DEPTH - s.z) * 0.0005;
 
         // Slow anti-clockwise rotation around center
-        const rotAngle = -0.0003; // anti-clockwise, barely perceptible
+        const rotAngle = -0.0008; // anti-clockwise, gentle spiral
         const cosA = Math.cos(rotAngle);
         const sinA = Math.sin(rotAngle);
         const newX = s.x * cosA - s.y * sinA;
@@ -99,8 +99,24 @@ export default function AnimatedBackground({ darkMode }) {
 
         // 3D to 2D projection
         const scale = 400 / s.z;
-        const sx = s.x * scale + cx;
-        const sy = s.y * scale + cy;
+        let sx = s.x * scale + cx;
+        let sy = s.y * scale + cy;
+
+        // Mouse repulsion — gently nudge stars away from cursor
+        if (mouse.active) {
+          const dx = sx - mouse.x;
+          const dy = sy - mouse.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < MOUSE_RADIUS && dist > 0) {
+            const force = (1 - dist / MOUSE_RADIUS) * 1.2;
+            const nx = dx / dist;
+            const ny = dy / dist;
+            s.x += (nx * force) / scale;
+            s.y += (ny * force) / scale;
+            sx = s.x * scale + cx;
+            sy = s.y * scale + cy;
+          }
+        }
 
         // Previous position for streak
         const prevScale = 400 / (s.z + SPEED + (MAX_DEPTH - s.z) * 0.0005);
@@ -125,18 +141,24 @@ export default function AnimatedBackground({ darkMode }) {
         ctx.lineCap = 'round';
         ctx.stroke();
 
-        // Draw star dot
+        // Draw star dot — gradient orb with bright center
+        const dotR = Math.max(size, 0.8);
+        const dotGrad = ctx.createRadialGradient(sx, sy, 0, sx, sy, dotR);
+        dotGrad.addColorStop(0, `rgba(255,255,255,${alpha * 0.95})`);
+        dotGrad.addColorStop(0.3, `rgba(${s.color},${alpha})`);
+        dotGrad.addColorStop(1, `rgba(${s.color},${alpha * 0.3})`);
         ctx.beginPath();
-        ctx.arc(sx, sy, Math.max(size, 0.8), 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(${s.color},${alpha})`;
+        ctx.arc(sx, sy, dotR, 0, Math.PI * 2);
+        ctx.fillStyle = dotGrad;
         ctx.fill();
 
-        // Glow for close stars
-        if (depth > 0.2) {
-          const glowAlpha = (depth - 0.2) * 0.8 * (darkMode ? 1 : 0.8);
-          const glowR = size * 4;
-          const glow = ctx.createRadialGradient(sx, sy, 0, sx, sy, glowR);
-          glow.addColorStop(0, `rgba(${s.color},${glowAlpha})`);
+        // Soft outer glow
+        if (depth > 0.15) {
+          const glowAlpha = (depth - 0.15) * 0.6 * (darkMode ? 1 : 0.7);
+          const glowR = dotR * 3.5;
+          const glow = ctx.createRadialGradient(sx, sy, dotR * 0.5, sx, sy, glowR);
+          glow.addColorStop(0, `rgba(${s.color},${glowAlpha * 0.5})`);
+          glow.addColorStop(0.5, `rgba(${s.color},${glowAlpha * 0.15})`);
           glow.addColorStop(1, `rgba(${s.color},0)`);
           ctx.beginPath();
           ctx.arc(sx, sy, glowR, 0, Math.PI * 2);
@@ -161,24 +183,24 @@ export default function AnimatedBackground({ darkMode }) {
             const connDist = isMobile ? 160 : 220;
 
             if (dist < connDist) {
-              const lineAlpha = (1 - dist / connDist) * 0.55 * Math.min(depth + 0.3, depth2 + 0.3);
+              const lineAlpha = (1 - dist / connDist) * 0.88 * Math.min(depth + 0.52, depth2 + 0.52);
 
-              // Brighten near cursor
-              let lineWidth = 0.6;
+              // Fade out connections near cursor (break apart effect)
+              let cursorFade = 1;
+              let lineWidth = 1;
               if (mouse.active) {
                 const midX = (sx + sx2) / 2;
                 const midY = (sy + sy2) / 2;
                 const mDist = Math.sqrt((midX - mouse.x) ** 2 + (midY - mouse.y) ** 2);
                 if (mDist < MOUSE_RADIUS) {
-                  const boost = 1 - mDist / MOUSE_RADIUS;
-                  lineWidth += boost * 1.5;
+                  cursorFade = mDist / MOUSE_RADIUS; // 0 at center, 1 at edge
                 }
               }
 
               ctx.beginPath();
               ctx.moveTo(sx, sy);
               ctx.lineTo(sx2, sy2);
-              ctx.strokeStyle = `rgba(${s.color},${lineAlpha})`;
+              ctx.strokeStyle = `rgba(${s.color},${lineAlpha * cursorFade})`;
               ctx.lineWidth = lineWidth;
               ctx.stroke();
             }
