@@ -17,7 +17,7 @@ export default function AnimatedBackground({ darkMode }) {
 
     const isMobile = window.innerWidth < 768;
     const STAR_COUNT = isMobile ? 200 : 350;
-    const SPEED = 3;
+    const SPEED = 1.2;
     const MAX_DEPTH = 1500;
     const MOUSE_RADIUS = isMobile ? 200 : 250;
 
@@ -77,8 +77,17 @@ export default function AnimatedBackground({ darkMode }) {
       for (let i = 0; i < stars.length; i++) {
         const s = stars[i];
 
-        // Move star toward viewer
-        s.z -= SPEED + (MAX_DEPTH - s.z) * 0.003;
+        // Move star toward viewer (slowly)
+        s.z -= SPEED + (MAX_DEPTH - s.z) * 0.001;
+
+        // Slow anti-clockwise rotation around center
+        const rotAngle = -0.003; // anti-clockwise
+        const cosA = Math.cos(rotAngle);
+        const sinA = Math.sin(rotAngle);
+        const newX = s.x * cosA - s.y * sinA;
+        const newY = s.x * sinA + s.y * cosA;
+        s.x = newX;
+        s.y = newY;
 
         // Respawn when it passes the viewer
         if (s.z <= 0) {
@@ -96,7 +105,7 @@ export default function AnimatedBackground({ darkMode }) {
         const sy = s.y * scale + cy;
 
         // Previous position for streak
-        const prevScale = 400 / (s.z + SPEED + (MAX_DEPTH - s.z) * 0.003);
+        const prevScale = 400 / (s.z + SPEED + (MAX_DEPTH - s.z) * 0.001);
         const prevSx = s.x * prevScale + cx;
         const prevSy = s.y * prevScale + cy;
 
